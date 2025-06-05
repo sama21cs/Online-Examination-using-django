@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto bg-gray-800 p-8 rounded-lg shadow-lg mt-8">
+    <h1 class="text-2xl font-bold mb-4 text-center">Instructions for {{ test.title }}</h1>
+    <p class="text-gray-300 mb-4">Duration: {{ test.duration }} minutes</p>
+    <p class="text-gray-300 mb-4">Total Questions: {{ test.total_questions }}</p>
+    <p class="text-gray-300 mb-4">Total Marks: {{ test.total_marks }}</p>
+    <p class="text-gray-300 mb-4">Negative Marking: {% if test.negative_marks %}Yes{% else %}No{% endif %}</p>
+    <p class="text-gray-300 mb-6">Please read the instructions carefully before starting the test.</p>
+    {% if error %}
+        <p class="text-red-500 text-sm mb-4">{{ error }}</p>
+    {% endif %}
+    <form id="instructions-form" method="POST" action="{% url 'test_instructions' test.id %}">
+        {% csrf_token %}
+        <div class="mb-4">
+            <label class="flex items-center text-gray-300">
+                <input type="checkbox" id="terms" name="terms" class="mr-2">
+                I agree to the terms and conditions
+            </label>
+            <p id="terms-error" class="text-red-500 text-sm mt-1 hidden">Please tick the terms and conditions first, then proceed.</p>
+        </div>
+        <button type="submit" id="proceed-btn" class="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600 transition-colors">Proceed to Test</button>
+    </form>
+</div>
+
+<script>
+document.getElementById('instructions-form').addEventListener('submit', function(event) {
+    const termsCheckbox = document.getElementById('terms');
+    const errorMessage = document.getElementById('terms-error');
+    if (!termsCheckbox.checked) {
+        event.preventDefault();
+        errorMessage.classList.remove('hidden');
+        console.log('Terms not checked, submission prevented');
+    } else {
+        errorMessage.classList.add('hidden');
+        console.log('Terms checked, submitting form');
+    }
+});
+</script>
+{% endblock %}

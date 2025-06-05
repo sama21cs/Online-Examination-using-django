@@ -1,0 +1,15 @@
+.carousel {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+}
+.carousel-item {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+}
+body {
+    background: linear-gradient(135deg, #1a202c, #2d3748);
+}
+nav {
+    background: linear-gradient(to right, #4c51bf, #9f7aea);
+}

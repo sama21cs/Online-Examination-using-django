@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto bg-gray-800 p-8 rounded-lg shadow-lg mt-8">
+    {% if feedback_submitted %}
+        <h1 class="text-2xl font-bold mb-4 text-center">Thank You for Your Feedback!</h1>
+        <div class="text-center">
+            <p class="text-gray-300 mb-6">Your feedback has been submitted successfully.</p>
+            <a href="{% url 'home' %}" class="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors shadow-md">Back to Home Screen</a>
+        </div>
+    {% else %}
+        <h1 class="text-2xl font-bold mb-4 text-center">Thanks for giving the {{ test.title }}!</h1>
+        <p class="text-gray-300">Marked: {{ summary.marked }}</p>
+        <p class="text-gray-300">Unmarked: {{ summary.unmarked }}</p>
+        <p class="text-gray-300">Marked for Review: {{ summary.review }}</p>
+        {% if error %}
+            <p class="text-red-500 mb-4">{{ error }}</p>
+        {% endif %}
+        <form method="POST" class="space-y-6 mt-6">
+            {% csrf_token %}
+            <div>
+                <h3 class="text-lg font-semibold">Overall Rating (1-5)</h3>
+                <div class="flex space-x-2 justify-center">
+                    {% for i in '12345' %}
+                    <label class="text-yellow-400 text-xl cursor-pointer">
+                        <input type="radio" name="rating" value="{{ i }}" class="mr-1"> {{ i }}
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold">Experience (1-5)</h3>
+                <div class="flex space-x-2 justify-center">
+                    {% for i in '12345' %}
+                    <label class="text-yellow-400 text-xl cursor-pointer">
+                        <input type="radio" name="experience" value="{{ i }}" class="mr-1"> {{ i }}
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold">Quality of Questions (1-5)</h3>
+                <div class="flex space-x-2 justify-center">
+                    {% for i in '12345' %}
+                    <label class="text-yellow-400 text-xl cursor-pointer">
+                        <input type="radio" name="quality" value="{{ i }}" class="mr-1"> {{ i }}
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold">Difficulty Level (1-5)</h3>
+                <div class="flex space-x-2 justify-center">
+                    {% for i in '12345' %}
+                    <label class="text-yellow-400 text-xl cursor-pointer">
+                        <input type="radio" name="difficulty" value="{{ i }}" class="mr-1"> {{ i }}
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="flex space-x-4">
+                <button type="submit" class="flex-1 bg-green-500 text-white py-2 rounded hover:bg-green-600 transition-colors">Submit Feedback</button>
+                <button type="submit" name="skip_feedback" value="true" class="flex-1 bg-gray-500 text-white py-2 rounded hover:bg-gray-600 transition-colors">Skip Feedback</button>
+            </div>
+        </form>
+    {% endif %}
+</div>
+{% endblock %}

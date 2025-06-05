@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load exam_tags %}
+
+{% block content %}
+<div class="flex max-w-6xl mx-auto mt-8 space-x-4">
+    <!-- Question Section -->
+    <div class="flex-1 bg-gray-800 p-8 rounded-lg shadow-lg">
+        <div class="flex justify-between items-center mb-4">
+            <h1 class="text-2xl font-bold">Test: {{ test.title }}</h1>
+            <div id="timer" class="text-lg font-semibold text-red-500">Time Remaining: 00:00</div>
+        </div>
+        <p class="text-gray-300 mb-4">Question {{ question_index }} of {{ test.total_questions }}</p>
+        <form id="question-form" method="POST" action="{% url 'submit_answer' test.id question.id %}" class="space-y-4">
+            {% csrf_token %}
+            <p class="text-gray-100 text-lg">{{ question.text }}</p>
+            {% if question.is_mcq %}
+            <div class="space-y-2">
+                {% for option in question.option1|add:","|add:question.option2|add:","|add:question.option3|add:","|add:question.option4|split:"," %}
+                {% if option %}
+                <label class="flex items-center">
+                    <input type="radio" name="answer" value="{{ option }}" class="mr-2" {% if question.user_response and question.user_response.answer == option %}checked{% endif %}> {{ option }}
+                </label>
+                {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+            <div class="flex items-center space-x-4">
+                <label class="flex items-center text-gray-300">
+                    <input type="checkbox" name="marked_for_review" class="mr-2" {% if question.user_response and question.user_response.marked_for_review %}checked{% endif %}> Mark for Review
+                </label>
+            </div>
+            <div class="flex space-x-4">
+                {% if question_index > 1 %}
+                <button type="submit" name="action" value="previous" class="flex-1 bg-gray-500 text-white py-2 rounded hover:bg-gray-600 transition-colors">Previous</button>
+                {% endif %}
+                {% if question_index < test.total_questions %}
+                <button type="submit" name="action" value="next" class="flex-1 bg-green-500 text-white py-2 rounded hover:bg-green-600 transition-colors">Next</button>
+                {% else %}
+                <button type="submit" name="action" value="submit" class="flex-1 bg-green-500 text-white py-2 rounded hover:bg-green-600 transition-colors">Submit Test</button>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Question Tracker -->
+    <div class="w-64 bg-gray-700 p-4 rounded-lg shadow-lg">
+        <h2 class="text-lg font-semibold mb-4">Question Tracker</h2>
+        <p class="text-gray-300">Total: {{ tracker.total }}</p>
+        <p class="text-gray-300">Attempted: {{ tracker.attempted }}</p>
+        <p class="text-gray-300">Unattempted: {{ tracker.unattempted }}</p>
+        <p class="text-gray-300">Marked for Review: {{ tracker.marked_for_review }}</p>
+        <div class="mt-4 grid grid-cols-5 gap-2">
+            {% for q in questions %}
+            {% with response=q.user_response %}
+            <a href="{% url 'test_question' test.id q.id %}" class="block text-center text-sm p-2 rounded
+                {% if response and response.answer %}bg-green-600{% elif response and response.marked_for_review %}bg-yellow-600{% else %}bg-gray-500{% endif %}
+                hover:bg-opacity-80">
+                {{ forloop.counter }}
+            </a>
+            {% endwith %}
+            {% endfor %}
+        </div>
+        <button type="submit" form="question-form" name="action" value="submit" class="w-full mt-4 bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 transition-colors">Submit Test</button>
+    </div>
+</div>
+
+<script>
+    // Timer
+    let remainingSeconds = {{ remaining_seconds|default:0 }};
+    const timerElement = document.getElementById('timer');
+    function updateTimer() {
+        if (remainingSeconds <= 0) {
+            document.getElementById('question-form').submit();
+            return;
+        }
+        const minutes = Math.floor(remainingSeconds / 60);
+        const seconds = remainingSeconds % 60;
+        timerElement.textContent = `Time Remaining: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        remainingSeconds--;
+    }
+    updateTimer();
+    setInterval(updateTimer, 1000);
+
+    // Prevent back navigation
+    history.pushState(null, null, location.href);
+    window.onpopstate = function () {
+        history.pushState(null, null, location.href);
+    };
+</script>
+{% endblock %}

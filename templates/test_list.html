@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto p-8">
+    <h1 class="text-3xl font-bold text-center mb-8">Available Tests</h1>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for test in tests %}
+        <div class="bg-gray-800 rounded-lg p-6 shadow-lg hover:shadow-xl hover:scale-105 transition-transform duration-300">
+            <h2 class="text-xl font-semibold mb-2">{{ test.title }}</h2>
+            <p class="text-gray-300">Duration: {{ test.duration }} minutes</p>
+            <p class="text-gray-300">Total Questions: {{ test.total_questions }}</p>
+            <p class="text-gray-300">Total Marks: {{ test.total_marks }}</p>
+            <p class="text-gray-300">Negative Marks: {% if test.negative_marks %}Yes{% else %}No{% endif %}</p>
+            <p class="text-gray-300">Sections: {{ test.sections }}</p>
+            {% if user.is_authenticated %}
+                <a href="{% url 'test_instructions' test.id %}" class="mt-4 inline-block bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors">Start Test</a>
+            {% else %}
+                <a href="{% url 'login' %}" class="mt-4 inline-block bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors">Login to Start</a>
+            {% endif %}
+        </div>
+        {% empty %}
+        <p class="text-center text-gray-400">No tests available at the moment.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
